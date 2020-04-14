@@ -1,6 +1,6 @@
 {
   "name": "@sovpro/cl-heos",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "A command-line utility to command a HEOS device",
   "main": "dist/cl-heos",
   "repository": {
@@ -8,10 +8,9 @@
     "url": "git+https://github.com/sovpro/cl-heos.git"
   },
   "keywords": [
-    "zero-configuration",
+    "heos",
     "command-line",
-    "option",
-    "parsing"
+    "utility"
   ],
   "author": "sovpro <its.so@outlook.com>",
   "license": "MIT",
