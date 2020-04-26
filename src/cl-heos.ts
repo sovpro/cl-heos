@@ -30,6 +30,12 @@ const COMMAND              = process.argv[2]
 const PARAMS               = zclopts (process.argv.slice (3))
 const HEOS_PORT            = +(PARAMS.port) || +(process.env.HEOS_PORT) || 1255
 const HEOS_HOST            = PARAMS.host || process.env.HEOS_HOST
+const LIMIT_PROPS           = ((props) => new Set (
+                               Array.isArray (props)
+                               ? props : typeof props === 'string'
+                               ? props.trim ().split (/\s+/) : null
+                             )) (PARAMS ['limit-props'])
+
 
 export async function main () {
   const command  = COMMANDS[COMMAND]
@@ -68,7 +74,10 @@ function displayItems (items) {
 function displayItem (item, i = 0) {
   console.log ((i + 1) + displayItem.ITEM_SEP)
   const props = Object.getOwnPropertyNames (item)  
-  props.filter (prop => item[prop] !== undefined).forEach (displayProp.bind (null, item))
+  ; ( LIMIT_PROPS.size
+    ? props.filter (prop => LIMIT_PROPS.has (prop))
+    : props.filter (prop => item[prop] !== undefined)
+  ).forEach (displayProp.bind (null, item))
 }
 
 function displayProp (item, prop) {
