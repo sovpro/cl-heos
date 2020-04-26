@@ -40,11 +40,19 @@ const LIMIT_PROPS           = ((props) => new Set (
 export async function main () {
   const command  = COMMANDS[COMMAND]
   if (shouldShowHelp (command, PARAMS)) {
-    console.log ('Usage: cl-heos command <params...>')
-    console.log ('  Required: --host or set HEOS_HOST')
-    console.log ('  Optional: --port or set HEOS_PORT')
+    console.log ('Usage: cl-heos <command> <params...>')
+    const command_alt = process.argv[3]
     if (command) showCommand (COMMAND)
-    else Object.keys (COMMANDS).forEach (showCommand)
+    else if (COMMANDS[command_alt]) showCommand (command_alt)
+    else {
+      console.log ('       cl-heos --help [<command>] | <command> --help')
+      console.log ('')
+      console.log ('       required: --host or set HEOS_HOST')
+      console.log ('       optional: --port or set HEOS_PORT')
+      console.log ('                 --limit-props prop [...prop]')
+      console.log ('')
+      Object.keys (COMMANDS).forEach (showCommand)
+    }
   }
   else {
     try {
@@ -88,8 +96,8 @@ function displayProp (item, prop) {
 
 function showCommand (command) {
   const { args } = COMMANDS[command]
-  const args_str = args.map (s => `--${s}`).join (' ')
-  console.log (`    cl-heos ${command} [--host] ${args_str}`)
+  const args_str = args.map (s => `--${s} ..`).join (' ')
+  console.log (`       cl-heos ${command} ${args_str}`)
 }
 
 function getFuncArgs (func) {
