@@ -1,6 +1,6 @@
 {
   "name": "@sovpro/cl-heos",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0",
   "description": "A command-line utility to command a HEOS device",
   "main": "dist/cl-heos",
   "repository": {
@@ -30,6 +30,6 @@
   "dependencies": {
     "@sovpro/heos-lib": "^1.3.0",
     "@sovpro/promise-connect": "^1.1.1",
-    "@sovpro/zclopts": "^1.0.0-beta.3"
+    "@sovpro/zclopts": "^1.0.0"
   }
 }

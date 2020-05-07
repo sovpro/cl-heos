@@ -28,13 +28,13 @@ const nonEmpty  = str => str.length
 const COMMANDS             = declarations.reduce (buildCommands, {})
 const COMMAND              = process.argv[2]
 const PARAMS               = zclopts (process.argv.slice (3))
-const HEOS_PORT            = +(PARAMS.port) || +(process.env.HEOS_PORT) || 1255
-const HEOS_HOST            = PARAMS.host || process.env.HEOS_HOST
+const HEOS_PORT            = +(PARAMS.get ('port')) || +(process.env.HEOS_PORT) || 1255
+const HEOS_HOST            = PARAMS.get ('host') || process.env.HEOS_HOST
 const LIMIT_PROPS           = ((props) => new Set (
                                Array.isArray (props)
                                ? props : typeof props === 'string'
                                ? props.trim ().split (/\s+/) : null
-                             )) (PARAMS ['limit-props'])
+                             )) (PARAMS.get ('limit-props'))
 
 
 export async function main () {
@@ -58,13 +58,25 @@ export async function main () {
     try {
       const socket   = await promiseConnect (HEOS_PORT, HEOS_HOST)
       const heoslib  = new HeosLib (socket)
-      displayResult (await heoslib[command.name] (PARAMS))
+      displayResult (await heoslib[command.name] (mapToObj (PARAMS)))
       socket.end ()
     }
     catch (err) {
       console.error ('Error: ' + err.message)
     }
   }
+}
+
+function mapToObj (map) {
+  const iter = map.entries ()
+  let obj = {}
+  let entry = null
+  while (true) {
+    entry = iter.next ()
+    if (entry.done) break
+    obj[entry.value[0]] = entry.value[1]
+  }
+  return obj
 }
 
 function displayResult (result) {
@@ -135,6 +147,6 @@ function getCommand (declaration) {
 function shouldShowHelp (command, params) {
   return ! command ||
          shouldShowHelp.HELP_REGEX.test (command) ||
-         params.hasOwnProperty ('h') ||
-         params.hasOwnProperty ('help')
+         params.get ('h') ||
+         params.has ('help')
 }
