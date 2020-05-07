@@ -2,8 +2,6 @@
 
 A command-line utility to command a HEOS device.
 
-BETA
-
 ```
 npm i -g @sovpro/cl-heos
 
