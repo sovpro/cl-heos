@@ -67,7 +67,7 @@ export async function main () {
       console.log ('                 --limit-props prop [...prop]')
       console.log ('')
       console.log ('       Tip: Set CL_HEOS_<parameter name> in environment to set a default')
-      console.log ('            example: export CL_HEOS_RANGE=0.4 # sets default for: --range')
+      console.log ('            example: export CL_HEOS_RANGE=0,4 # sets default for: --range')
       console.log ('                     export CL_HEOS_PID=123456789 # sets default for: --pid')
       console.log ('')
       showDefaults ()

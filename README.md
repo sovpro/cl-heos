@@ -15,7 +15,7 @@ Usage: cl-heos <command> <params...>
                  --limit-props prop [...prop]
 
        Tip: Set CL_HEOS_<parameter name> in environment to set a default
-            example: export CL_HEOS_RANGE=0.4 # sets default for: --range
+            example: export CL_HEOS_RANGE=0,4 # sets default for: --range
                      export CL_HEOS_PID=123456789 # sets default for: --pid
 
        cl-heos get-players
