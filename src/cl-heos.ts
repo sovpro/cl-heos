@@ -25,7 +25,20 @@ shouldShowHelp.HELP_REGEX  = /^\-(?:h(?:elp)?|\-help)$/
 const trimStr   = str => str.trim ()
 const nonEmpty  = str => str.length
 
-const COMMANDS             = declarations.reduce (buildCommands, {})
+const DEFAULT_PREFIX       = 'CL_HEOS_'
+const DEFAULT_PREFIX_LEN   = DEFAULT_PREFIX.length
+const DEFAULTS             = ((env, prefix, prefix_len) => {
+  return Object.keys (env).
+    filter (env_key => env_key.indexOf (prefix) === 0).
+    reduce ((defaults, env_key) => ({
+      ...defaults,
+      [env_key.toLowerCase ().substr (prefix_len)]: env[env_key]
+    }), {})
+}) (process.env, DEFAULT_PREFIX, DEFAULT_PREFIX_LEN)
+const HAS_DEFAULTS         = !!Object.keys (DEFAULTS).length
+
+const EXCLUDE_COMMANDS     = new Set (['registerForChangeEvents', 'checkAccount', 'signIn', 'signOut', 'heartBeat'])
+const COMMANDS             = declarations.filter (decl => !EXCLUDE_COMMANDS.has (decl.name)).reduce (buildCommands, {})
 const COMMAND              = process.argv[2]
 const PARAMS               = zclopts (process.argv.slice (3))
 const HEOS_PORT            = +(PARAMS.get ('port')) || +(process.env.HEOS_PORT) || 1255
@@ -36,21 +49,28 @@ const LIMIT_PROPS           = ((props) => new Set (
                                ? props.trim ().split (/\s+/) : null
                              )) (PARAMS.get ('limit-props'))
 
-
 export async function main () {
   const command  = COMMANDS[COMMAND]
   if (shouldShowHelp (command, PARAMS)) {
     console.log ('Usage: cl-heos <command> <params...>')
     const command_alt = process.argv[3]
-    if (command) showCommand (COMMAND)
-    else if (COMMANDS[command_alt]) showCommand (command_alt)
+    if (command ||COMMANDS[command_alt]) {
+      console.log ('')
+      showDefaults ()
+      showCommand (COMMAND || command_alt)
+    }
     else {
       console.log ('       cl-heos --help [<command>] | <command> --help')
       console.log ('')
-      console.log ('       required: --host or set HEOS_HOST')
-      console.log ('       optional: --port or set HEOS_PORT')
+      console.log ('       required: --host or set HEOS_HOST in environment')
+      console.log ('       optional: --port or set HEOS_PORT in environment')
       console.log ('                 --limit-props prop [...prop]')
       console.log ('')
+      console.log ('       Tip: Set CL_HEOS_<parameter name> in environment to set a default')
+      console.log ('            example: export CL_HEOS_RANGE=0.4 # sets default for: --range')
+      console.log ('                     export CL_HEOS_PID=123456789 # sets default for: --pid')
+      console.log ('')
+      showDefaults ()
       Object.keys (COMMANDS).forEach (showCommand)
     }
   }
@@ -58,12 +78,28 @@ export async function main () {
     try {
       const socket   = await promiseConnect (HEOS_PORT, HEOS_HOST)
       const heoslib  = new HeosLib (socket)
-      displayResult (await heoslib[command.name] (mapToObj (PARAMS)))
+      displayResult (await heoslib[command.name] ({
+        ...command.defaults,
+        ...mapToObj (PARAMS)
+      }))
       socket.end ()
     }
     catch (err) {
       console.error ('Error: ' + err.message)
     }
+  }
+}
+
+function showDefaults () {
+  if (HAS_DEFAULTS) {
+    console.log ('       Default parameter settings:')
+    console.log ('')
+    Object.keys (DEFAULTS).forEach (key => {
+      console.log (`           ${key} = ${DEFAULTS[key]}`)
+    })
+    console.log ('')
+    console.log ('       ** on an argument indicates a default parameter is set')
+    console.log ('')
   }
 }
 
@@ -107,9 +143,13 @@ function displayProp (item, prop) {
 }
 
 function showCommand (command) {
-  const { args } = COMMANDS[command]
-  const args_str = args.map (s => `--${s} ..`).join (' ')
+  const { args, defaults } = COMMANDS[command]
+  const args_str = args.map ((HAS_DEFAULTS ?
+    s => `--${s} ${defaults[s] ? '**' : '..'}` :
+    s => `--${s} ..`
+  )).join (' ')
   console.log (`       cl-heos ${command} ${args_str}`)
+  console.log ('')
 }
 
 function getFuncArgs (func) {
@@ -122,9 +162,18 @@ function getFuncArgs (func) {
 function buildCommands (commands, declaration) {
   const command = getCommand (declaration)
   const args = getArgs (declaration)
+  const defaults = getDefaults (args)
   const name = declaration.name
-  commands[command] = { name, args }
+  commands[command] = { name, args, defaults }
   return commands
+}
+
+function getDefaults (args) {
+  return args
+    .filter (arg => DEFAULTS.hasOwnProperty (arg))
+    .reduce ((defaults, arg) => ({
+      ...defaults, [arg]: DEFAULTS[arg]
+    }), {})
 }
 
 function getArgs (declaration) {
