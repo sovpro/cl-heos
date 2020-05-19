@@ -57,7 +57,7 @@ export async function main () {
     if (command ||COMMANDS[command_alt]) {
       console.log ('')
       showDefaults ()
-      showCommand (COMMAND || command_alt)
+      showCommand (command ? COMMAND : command_alt)
     }
     else {
       console.log ('       cl-heos --help [<command>] | <command> --help')

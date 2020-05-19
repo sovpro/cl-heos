@@ -1,6 +1,6 @@
 {
   "name": "@sovpro/cl-heos",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A command-line utility to command a HEOS device",
   "main": "dist/cl-heos",
   "repository": {
