@@ -90,6 +90,8 @@ Usage: cl-heos <command> <params...>
 
        cl-heos get-heos-playlists --range ..
 
+       cl-heos get-heos-favorites --range --
+
        cl-heos rename-heos-playlist --sid .. --cid .. --name ..
 
        cl-heos delete-heos-playlist --sid .. --cid ..
