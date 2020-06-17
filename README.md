@@ -106,7 +106,7 @@ Usage: cl-heos <command> <params...>
 
 ## Links
 
-* [HEOS by Denon](https://usa.denon.com/us/heos)
+* [HEOS by Denon](https://usa.denon.com/en/heos)
 * [HEOS CLI Protocol Specification](https://denon-uk.custhelp.com/app/answers/detail/a_id/5744/~/heos-control-protocol-\(cli\))
 
 # Notice
